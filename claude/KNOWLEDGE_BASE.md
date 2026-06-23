@@ -2,7 +2,7 @@
 
 > **用途**：这是 Jing Yang（yxj）给 Claude Code 的"自我介绍 + 团队介绍"知识库。
 > **覆盖范围**：他维护的所有仓库、App、Bundle ID、打包/Jenkins、产品谱系与约定。读到时按需定位到对应小节，不要凭目录名猜归属。（"**何时**来读本文件"的触发规则在全局 `~/.claude/CLAUDE.md`「Knowledge Base」段，不在此重复。）
-> **权威性**：本文件取代散落的 `~/Desktop/apps_map.md`、`~/Work/map.md`、`~/Work/maintained_apps_table.{md,csv}`（历史遗留，可能过期）。
+> **权威性**：本文件是代码库/应用映射的唯一权威来源（旧的散落文件 apps_map.md / map.md / maintained_apps_table.* 已于 2026-06 删除清理）。
 > **维护方式**：分级维护，见 [§8](#8-维护机制分级维护)。简言之——产品/分类/坑等"策展知识"手动 + AI 顺手更新；git 事实（remote/分支/worktree）由 `kb-sync.sh` 自动生成到 `kb/repos.generated.md`，勿手改；当前分支等易变信息不入库、用时现查。
 > **最后核对（策展层）**：2026-06-23。
 
@@ -230,7 +230,6 @@ NomiChat (ios-chat) ── 基于壳工程 NBShellApp（新 App 推荐路径）
 2. 一个仓库对应多个产品（community-ios、android-community）时，注意按 scheme/flavor 区分。
 3. `本地目录` / worktree 是当前机器（`/Users/yxj/Work`）状态；换机需重新核对（跑一次 `kb-sync.sh` 即可重建 B 类）。
 4. 改 NB* Pod 走独立仓库流程（见 3.2 警告），不要试图在 App 主仓提交 `Pods/`。
-5. 与历史文件（apps_map.md 等）冲突时，**以本文件为准**，并更新本文件备注来源与日期。
 
 ---
 

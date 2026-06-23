@@ -160,7 +160,7 @@ Above + `Component/listcomponent/` `Component/othercomponent/` — Template: `~/
 ---
 
 # Knowledge Base
-- **何时读** `~/.claude/KNOWLEDGE_BASE.md`（代码库/应用权威映射，取代散落的 apps_map.md / map.md / maintained_apps_table.md）——命中以下任一就先读：
+- **何时读** `~/.claude/KNOWLEDGE_BASE.md`（代码库/应用权威映射）——命中以下任一就先读：
   - 提到某 **App 名 / Bundle ID / 仓库名 / Jenkins job / "打包·发版·build"**
   - 要判断 **"改动属于哪个仓库 / 去哪改 / 哪些工程要同步"**（跨工程、谱系类）
   - **cwd 落在 `~/Work` 某子目录**里干活，或**崩溃/日志带 bundle id** 要反查仓库
