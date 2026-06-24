@@ -42,7 +42,7 @@ Enable Codex to use the Figma MCP (`figma-desktop`) to fetch design data and gen
 
 Whenever you ask Codex to run `pod install`, it should:
 
-1. Change directory to `~/Work/iOS/NewsBreak`
+1. Change directory to `~/Work/nb-iOS/NewsBreak`
 2. Run `bundle exec pod install`
 3. Return to the original directory
 
@@ -65,10 +65,10 @@ Whenever you ask Codex to run `pod install`, it should:
 
 ```bash
 # Local debug build
-xcodebuild -workspace NewsBreak.xcworkspace   -scheme NewsBreak -configuration Debug build   -destination 'platform=iOS Simulator,name=iPhone 15'
+xcodebuild -workspace /Users/yxj/Work/nb-iOS/NewsBreak/InNow.xcworkspace   -scheme NewsBreak -configuration Debug build   -destination 'platform=iOS Simulator,name=iPhone 15'
 
 # Run XCTest suites
-xcodebuild test -workspace NewsBreak.xcworkspace   -scheme NewsBreakTests   -destination 'platform=iOS Simulator,name=iPhone 15,OS latest'
+xcodebuild test -workspace /Users/yxj/Work/nb-iOS/NewsBreak/InNow.xcworkspace   -scheme NewsBreakTests   -destination 'platform=iOS Simulator,name=iPhone 15,OS latest'
 
 # Enforce Swift style
 swiftlint lint --config swiftlint/.swiftlint.yml
