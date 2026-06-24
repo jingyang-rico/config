@@ -4,7 +4,7 @@
 > **覆盖范围**：他维护的所有仓库、App、Bundle ID、打包/Jenkins、产品谱系与约定。读到时按需定位到对应小节，不要凭目录名猜归属。（"**何时**来读本文件"的触发规则在全局 `~/.claude/CLAUDE.md`「Knowledge Base」段，不在此重复。）
 > **权威性**：本文件是代码库/应用映射的唯一权威来源。
 > **维护方式**：分级维护，见 [§8](#8-维护机制分级维护)。简言之——产品/分类/坑等"策展知识"手动 + AI 顺手更新；git 事实（remote/分支/worktree）由 `kb-sync.sh` 自动生成到 `kb/repos.generated.md`，勿手改；当前分支等易变信息不入库、用时现查。
-> **最后核对（策展层）**：2026-06-23。
+> **最后核对（策展层）**：2026-06-24。
 
 ---
 
@@ -181,13 +181,12 @@ NomiChat (ios-chat) ── 基于壳工程 NBShellApp（新 App 推荐路径）
 
 | 本地目录 | 远程 | 说明 |
 |---|---|---|
-| `openclaw` | openclaw/openclaw | 多渠道 AI Gateway / 个人 AI 助手（见 memory: openclaw-runtime-setup） |
-| `claude-sub` | **jingyang-rico**/claude-sub | Claude 订阅 shim（openclaw/telegram 走订阅调 opus，见 memory: claude-sub-shim） |
+| `claude-sub` | **jingyang-rico**/claude-sub | Claude 订阅 shim（openclaw/telegram 走订阅调 opus，见 memory: claude-sub-shim / openclaw-runtime-setup；openclaw 服务跑在 Homebrew 全局，~/Work 不再保留其克隆） |
 | `claude-ratelimit-bar` | **yxjxx**/claude-ratelimit-bar | 在 statusline 显示 Claude Code 限额（5h 会话 + 7d 周） |
 
 ### 3.9 非 git 目录（脚本 / 草稿 / 资料，不可提交）
 
-`Demo`（Xcode demo）、`AutoTest`（测试/截图草稿）、`maplocal`（JSON mock/fixtures）、`notes`、`pb`（protobuf：events.proto 等）、`proj-manage`（WorkspaceLauncher）、`scripts`（h2 复现脚本）、`charles_cache`（Charles 抓包缓存）、`jenkins`（空）、`面试`（招聘资料）、`community-ios-gas-map`（草稿）。
+`AutoTest`（自动化测试用：每个 App 的测试知识库，持续完善中）、`maplocal`（常见接口的 Charles map local JSON）、`notes`、`pb`（protobuf：events.proto 等）、`proj-manage`（WorkspaceLauncher）、`charles_cache`（Charles 抓包缓存）、`jenkins`（空）。
 
 ---
 
@@ -254,7 +253,85 @@ NomiChat (ios-chat) ── 基于壳工程 NBShellApp（新 App 推荐路径）
 **A 类更新机制（半自动闭环）**：
 - **缺口检测**：`kb-sync.sh` 每次对比 B 类快照 vs 本文件，把"有仓库但没策展说明"的缺口写到 `~/.claude/kb/_gaps.txt`（已排除 worktree）。
 - **会话提示**：SessionStart hook 在有缺口或有待审建议（`kb/_proposed.md`）时，打一行 `[KB]` 提示。
-- **`/kb-review` skill**：交互跑 → 读缺口/漂移 → 读新仓库 README/podspec/git log 起草说明 + 就部落知识（谱系/坑/流程）问你 → 确认后改本文件并更新「最后核对」日期。
+- **`/kb-review` skill**：交互跑 → 读缺口/漂移 → 读新仓库 README/podspec/git log 起草说明 → **扫 auto-memory + 本周 git 改动，把涉仓库/产品/流程但 KB 未体现的耐久知识提升进来** → 就部落知识（谱系/坑/流程）问你 → 确认后改本文件并更新「最后核对」日期。
 - **每周自动起草**：launchd `com.yxj.kb-review`（周一 10:00）→ `~/.claude/kb-review-cron.sh`：刷新 B 类，**仅当有缺口**才 headless `claude -p "/kb-review --draft"` 把建议写到 `kb/_proposed.md`（不自动改本文件，等你 `/kb-review` 审核应用）；无缺口则跳过、不耗 token。
 
+**知识回写（任务后不靠自觉）**：原始知识由 **auto-memory** 在每个会话自动抽进 `~/.claude/projects/-Users-yxj-Work/memory/`（harness 驱动，防丢已固定）；其中涉及代码库地图的事实，由上面 `/kb-review` 的 memory 提升步**固定地**搬进本 KB 的结构化分节。memory 与 KB 共存：memory 是原始流水账，KB 是策展视图，只提升、不删 memory。
+
 **拆分规则（wiki 分级）**：本文件保持单文件索引。当某仓库/领域的策展内容超过约 **30 行**时，spin out 成 `~/.claude/kb/<领域>.md`，在第 3 节对应处只留一行摘要 + 指针（`详见 kb/<领域>.md`）。索引（本文件）始终小而稳，详情按需读——加再多仓库，单次进上下文的量也不涨。
+
+---
+
+## 9. 密钥目录（仅地图，值不在此）
+
+> 🔑 **密钥值全部在 `~/.config/secrets.env`**（chmod 600、不进 git、由 `~/.zshrc` 与 wrapper 脚本 `source`）。本节只记**变量名 / 用途 / 谁用**，**绝不记值**。
+> **取用规则**：脚本内部 `source ~/.config/secrets.env` 后直接用 `$VAR`，**绝不 `echo`/打印**（否则泄漏进对话/transcript，等同写进库）。launchd / 非交互进程**读不到 `.zshrc`**，要在脚本里**显式 `source` secrets.env**。
+> **新增密钥**：值用 `read -rs` 写进 secrets.env（别贴进对话），再在此表登记变量名。
+
+| env 变量 | 用途 | 账号 / scope | 谁用 |
+|---|---|---|---|
+| `JENKINS_USER` + `JENKINS_TOKEN` | ci.n.newsbreak.com basic auth（触发打包 / 查 job） | NewsBreak Jenkins | `/ios-build-trigger`、`/cc**` 打包 skill |
+| `ATLASSIAN_EMAIL` + `ATLASSIAN_API_TOKEN` | particlemedia.atlassian.net REST（Confluence 传附件等 MCP 不支持的操作） | 工作账号 | CLAUDE.md「Confluence 上传截图」curl |
+| `FIREBASE_TOKEN` | ⏸️ 暂注释停用（用途待确认） | — | — |
+| `OPENAI_API_KEY` | ⏸️ 暂注释停用（用途待确认） | — | — |
+| `GOOGLE_APPLICATION_CREDENTIALS` | ⏸️ 暂注释停用（值是 GCP service account JSON 的路径，非密钥本身） | — | — |
+
+> ⏸️ 上面 3 个**已在 `secrets.env` 注释停用**（保留行、不导出）。需要时去掉行首 `# ` 即恢复，并补全用途/使用方（可下次 `/kb-review` 处理）。
+
+---
+
+## 10. 开发流程 & 数据/质量工具链
+
+> 本节已与 Jing **逐条确认**（2026-06-24）。
+
+### 10.1 日常开发流程
+
+1. **建单**：Jira（当前 sprint，自动带版本号）→ `/ios-jira-task`。Jira / Confluence 统一走 `plugin:atlassian` MCP（Wiki 子页建在 **iOS Portal** 下）。
+2. **拉分支**：命名 `feature/xxx` 或 `fix/xxx`（从默认分支拉，iOS 系多为 `develop`）。
+3. **开发**：遵全局 + 仓库级 CLAUDE.md 规约（MVVM + Combine + SnapKit、命名、UIKit 注意点等）。改 **schema/埋点**走 §3.5、改 **NB\* 远程 pod** 走 §3.2 的固定流程。
+4. **自查**：改完用 `code-reviewer` agent 审本次会话改动；`/code-review --fix` 可作质量门禁。
+5. **提交 / PR**：commit 用祈使句；`/commit-push`、`/pr` 自动化分支/提交/PR。
+6. **Review & 合并**：**Codex 自动 review 所有 PR**（CI 里）+ **自己在 Slack 找人 review**；通过后 merge。（早期项目如 `ios-chat` 允许自己 merge 自己的 PR。）
+7. **打包**：merge 后可自动触发；手动用 `/cc**` / `/ios-build-trigger`（Jenkins 细节见 §5）。
+8. **提审上架**：目前**手动**传 TestFlight / 提审；计划用 **App Store Connect CLI 工具自动化**（参考 `app-store-connect-notifier`）。
+
+**版本号规则**：`YY.WW.B` —— 年份缩写 . 当年第几周(ISO week) . 当周第几版(从 0 起)。例：`26.25.0` = 2026 年第 25 周第一版，`26.25.1` = 同周第二版。**发版节奏不固定（按需）**。
+
+### 10.2 埋点 & 数据（Amplitude）
+
+- **org**：Particle Media（url `particlemedia`，id `7419`，enterprise）。
+- **埋点定义**在 `client-log-schema`（proto，**事件命名/口径的真源**），改动走 §3.5 / CLAUDE.md「Schema 仓库改动顺序」：**先查复用**（如 `open app` 通用事件）→ 改 proto → PR（只含 proto）→ Action 生成 → 更新工程 `Podfile` commit id 接入。
+- **查数/建图**：`plugin:amplitude` MCP（`get_events` 查事件名、`query_chart` 看图、dashboard）；配套 `analytics-instrumentation` 系列 skill（从代码 diff 推断该埋的事件 → 生成埋点计划）。
+
+**App → Amplitude 项目(appId)**（按 bundle id / 命名匹配，2026-06-23 经 `get_context` 拉取；待校）：
+
+| App | iOS 项目(appId) | Android 项目(appId) | 网站 |
+|---|---|---|---|
+| NewsBreak | NewsBreak iOS (Beta) `307242` | NewsBreak Android (Beta) `402580` | — |
+| CrimeRadar | Crime Radar IOS `699313` / Beta `699314` | Crime Radar Android `699311` / Beta `699312` | — |
+| OurBlock(LifeInfo) | LifeInfo iOS `748041` | — | — |
+| LocalAll | Local-all-iOS `667040` / Community-iOS-Beta `667042` | Local-all-Android `666550` / Community-Android-Beta `666551` | Zests Website `710972` |
+| Bible Vod | bible_ios `758066`（release+beta 同项目） | bible_android `750547` | biblevod-website `755422` |
+| Pills Minder | health_iOS `763653`（无 beta） | health_android `816665` | — |
+| Scoopz | Bloom (Beta) `463373` | — | — |
+| NomiChat | chat_ios `816063` | — | — |
+
+- 备注：**NewsBreak 正式版**项目本人无权限（仅列 Beta）；**`nomi-website` 无需埋点**；**SayFlow** / `InNow iOS Beta`(`666950`) 暂不细究。
+- **常看的核心看板**：
+  - [ios-nomichat Core Metrics](https://app.amplitude.com/analytics/particlemedia/dashboard/l3uya985)（`l3uya985`）— NomiChat 新用户旅程 / 对话互动 / Push 授权与点击；口径对齐《AI 陪伴埋点文档》。
+  - [Crime Radar Core Metrics](https://app.amplitude.com/analytics/particlemedia/dashboard/v5t4ou3y)（`v5t4ou3y`）— CrimeRadar 核心指标（data 团队官方看板）。
+
+### 10.3 归因 / 导流（Adjust）
+
+- **接入范围**：所有 App（NBShellApp 的"归因 attribution"模块即对接此类）。
+- **用途**：安装归因 + 渠道投放（买量）效果追踪。
+- **核心指标**：安装数。
+- **看数**：数据**回传到 Amplitude 看**（不单独盯 Adjust dashboard）；按需用 `mcp__adjust__reporting_tool` 拉报表。
+- 凭证（Adjust app token / API token）属密钥，走 `secrets.env`（§9），不入本表。
+
+### 10.4 崩溃监控（Firebase Crashlytics）
+
+- **项目结构**：**每个产品独立 Firebase 项目**；项目内按 **Bundle ID** 对应各 App。
+- **看 crash**：Crashlytics 看板 + **人工 oncall**，叠加 **OpenClaw 崩溃报警 / 自动分析**（目标：oncall 只看 AI 报告）。
+- `FIREBASE_TOKEN`（§9，现注释停用）用于 Firebase CLI。
+- dSYM 上传由其他流程保证（暂不细究）。
