@@ -151,8 +151,9 @@ Above + `Component/listcomponent/` `Component/othercomponent/` — Template: `~/
 - `editJiraIssue` 的 `description` 传 **markdown 字符串**（插件自动转 ADF）
 
 ### Confluence 上传截图
-- MCP 插件无附件上传功能，需用 REST API：`curl -u "${EMAIL}:${API_TOKEN}" -X POST -H "X-Atlassian-Token: nocheck" -F "file=@/path/to/image.png" "https://particlemedia.atlassian.net/wiki/rest/api/content/${PAGE_ID}/child/attachment"`
-- 上传后需查询附件的 `fileId`：`curl -u "${EMAIL}:${API_TOKEN}" ".../content/${PAGE_ID}/child/attachment"` → `extensions.fileId`
+- 凭证 `ATLASSIAN_EMAIL` / `ATLASSIAN_API_TOKEN` 在 `~/.config/secrets.env`（交互 shell 已自动 source；脚本里需先 `source`）。见 KB §9 密钥目录。
+- MCP 插件无附件上传功能，需用 REST API：`curl -u "${ATLASSIAN_EMAIL}:${ATLASSIAN_API_TOKEN}" -X POST -H "X-Atlassian-Token: nocheck" -F "file=@/path/to/image.png" "https://particlemedia.atlassian.net/wiki/rest/api/content/${PAGE_ID}/child/attachment"`
+- 上传后需查询附件的 `fileId`：`curl -u "${ATLASSIAN_EMAIL}:${ATLASSIAN_API_TOKEN}" ".../content/${PAGE_ID}/child/attachment"` → `extensions.fileId`
 - 页面内嵌图片用 ADF `mediaSingle` + `media` 节点，`id` 必须是附件的 `fileId`（UUID），不能用文件名
 - `collection` 固定为 `"contentId-${PAGE_ID}"`
 - 示例：`{"type": "media", "attrs": {"type": "file", "collection": "contentId-123", "id": "uuid-from-fileId"}}`
