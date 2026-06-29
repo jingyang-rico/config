@@ -90,13 +90,13 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 ---
 
 ## Code Review
-- 完成代码编辑后，使用 code-reviewer agent 审查变更
-- 审查范围：本次会话中使用 Edit/Write 工具修改的所有文件
-- 发现问题时先报告，等待确认后再修复
+- 完成一段有意义的开发后（非每次琐碎编辑），用 `/code-review` skill 审查工作区 diff
+- 问题明确且修复局部可回退 → 直接修；诊断不确定、改动会扩散或改变范围、或有多种方案 → 先报告再动
 
 ## Git
 - Write commits in imperative mood (e.g., `Add drama carousel logging adapter`)
 - Edits are auto-approved
+- **不同问题/feature 主动用 `using-git-worktrees` skill 建独立 worktree 隔离工作区**——这是常驻偏好，无需每次征求同意（skill Step 0 直接照做）
 
 ---
 
@@ -108,7 +108,7 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 - **UI Framework:** UIKit (primary), SwiftUI (widgets)
 - **Architecture:** Modular feature-based architecture with 100+ local pods
 
-## Codex Automation
+## iOS Code Change Automation
 - After code edits, run `bundle exec pod install` (if CocoaPods files changed), then open Xcode and build (Command+R)
 - If build errors, capture logs, fix, and rerun until success
 
@@ -163,6 +163,7 @@ Above + `Component/listcomponent/` `Component/othercomponent/` — Template: `~/
 - 开发完成后不要自动开始 UI 自动化测试，先询问用户是否要进行
 - 得到肯定回答后，使用 iPhone 16e 模拟器 (UDID: A494B81E-790F-430A-9FA2-8E4B6E91C302) 进行测试
 - 使用 AXe CLI 工具进行模拟器交互（tap, swipe, screenshot, describe-ui 等）
+- **优先用导航缓存加速**：若项目根有 `uitest/navigation.yaml` + `uitest/screens.yaml`，先读它们——`navigation.yaml` 给屏幕间寻路（跳转图）、`screens.yaml` 按 accessibilityIdentifier 直接 `axe tap --id`，省去 `describe-ui` 盲探。两份文件靠人工/`a11y-instrument` skill 同步、可能过期；实际对不上时再 fallback 到 describe-ui 探索
 - 测试前需要先通过 xcodebuildmcp 编译安装 App 到模拟器
 - 如果模拟器网络不通，检查 Charles Proxy 证书是否已安装并信任
 
