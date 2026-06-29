@@ -142,6 +142,11 @@ NomiChat (ios-chat) ── 基于壳工程 NBShellApp（新 App 推荐路径）
 | `streaming_asr` | ParticleMedia/streaming_asr | GPU1 上的 Qwen3-ASR WebSocket 流式语音识别服务 |
 
 > **服务端架构**：NewsBreak 及大多数拷贝派生的 App 主要用 `server`；**全新的独立接口走 `server-lite`**。`server-lite` 对外提供到 `server` 的**反向代理**，并负责**鉴权**。
+>
+> **server-lite 部署**（EKS / Helm，Jenkins `Prod/` 文件夹，与 §5 的 iOS `Sandbox/` 打包 job 不是一回事）：每个环境的 **CI job 跑完会自动触发对应的 deploy(CD) job**，无需手动点部署。Helm chart 在仓库 `deploy/helm/server-lite-eks/`，部署到 k8s namespace `user-serving`。
+> - **Prod**：CI [`server-lite-eks-prod-ci`](https://ci.n.newsbreak.com/job/Prod/job/server-lite-eks-prod-ci/) → 自动触发 CD [`server-lite-deploy-eks-prod`](https://ci.n.newsbreak.com/job/Prod/job/server-lite-deploy-eks-prod/)；URL `http://server-lite-eks-default.k8s.nb-prod.com`（健康检查 `/health`）。
+> - **Stage**：CI [`server-lite-eks-stage-ci`](https://ci.n.newsbreak.com/job/Prod/job/server-lite-eks-stage-ci/) → 自动触发 CD [`server-lite-deploy-eks-stage`](https://ci.n.newsbreak.com/job/Prod/job/server-lite-deploy-eks-stage/)；URL `http://server-lite-eks-default-stage.k8s.nb-prod.com`。
+> - 这些 job 在 `ci.n.newsbreak.com/job/Prod/` 下；仓库 README 里另有 `jenkins.n.newsbreak.com/view/server-lite/` 的等价别名路径。
 
 ### 3.5 Schema / 共享数据契约
 
@@ -268,13 +273,13 @@ NomiChat (ios-chat) ── 基于壳工程 NBShellApp（新 App 推荐路径）
 > **取用规则**：脚本内部 `source ~/.config/secrets.env` 后直接用 `$VAR`，**绝不 `echo`/打印**（否则泄漏进对话/transcript，等同写进库）。launchd / 非交互进程**读不到 `.zshrc`**，要在脚本里**显式 `source` secrets.env**。
 > **新增密钥**：值用 `read -rs` 写进 secrets.env（别贴进对话），再在此表登记变量名。
 
-| env 变量 | 用途 | 账号 / scope | 谁用 |
-|---|---|---|---|
-| `JENKINS_USER` + `JENKINS_TOKEN` | ci.n.newsbreak.com basic auth（触发打包 / 查 job） | NewsBreak Jenkins | `/ios-build-trigger`、`/cc**` 打包 skill |
-| `ATLASSIAN_EMAIL` + `ATLASSIAN_API_TOKEN` | particlemedia.atlassian.net REST（Confluence 传附件等 MCP 不支持的操作） | 工作账号 | CLAUDE.md「Confluence 上传截图」curl |
-| `FIREBASE_TOKEN` | ⏸️ 暂注释停用（用途待确认） | — | — |
-| `OPENAI_API_KEY` | ⏸️ 暂注释停用（用途待确认） | — | — |
-| `GOOGLE_APPLICATION_CREDENTIALS` | ⏸️ 暂注释停用（值是 GCP service account JSON 的路径，非密钥本身） | — | — |
+| env 变量                                    | 用途                                                           | 账号 / scope        | 谁用                                    |
+| ----------------------------------------- | ------------------------------------------------------------ | ----------------- | ------------------------------------- |
+| `JENKINS_USER` + `JENKINS_TOKEN`          | ci.n.newsbreak.com basic auth（触发打包 / 查 job）                  | NewsBreak Jenkins | `/ios-build-trigger`、`/cc**` 打包 skill |
+| `ATLASSIAN_EMAIL` + `ATLASSIAN_API_TOKEN` | particlemedia.atlassian.net REST（Confluence 传附件等 MCP 不支持的操作） | 工作账号              | CLAUDE.md「Confluence 上传截图」curl        |
+| `FIREBASE_TOKEN`                          | ⏸️ 暂注释停用（用途待确认）                                              | —                 | —                                     |
+| `OPENAI_API_KEY`                          | ⏸️ 暂注释停用（用途待确认）                                              | —                 | —                                     |
+| `GOOGLE_APPLICATION_CREDENTIALS`          | ⏸️ 暂注释停用（值是 GCP service account JSON 的路径，非密钥本身）              | —                 | —                                     |
 
 > ⏸️ 上面 3 个**已在 `secrets.env` 注释停用**（保留行、不导出）。需要时去掉行首 `# ` 即恢复，并补全用途/使用方（可下次 `/kb-review` 处理）。
 
