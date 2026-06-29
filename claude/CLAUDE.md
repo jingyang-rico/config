@@ -60,6 +60,31 @@ For multi-step tasks, state a brief plan:
 
 Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
 
+## 5. Verification
+
+**"Works" ≠ "I think it works". Prove it.**
+
+- Fixing a bug: write a test that reproduces it, run it, watch it FAIL, then fix. A test that never failed proves nothing.
+- Run the test suite BEFORE your change (baseline), not just after. If it was already red, say so — don't let your diff take the blame.
+- Test behavior, not trivia (validation rejects bad input > constructor sets a field).
+
+## 6. Debugging
+
+**Don't guess. Investigate.**
+
+- Read the FULL error + stack trace before generating a "fix". Don't pattern-match on the error type.
+- Reproduce first — if you can't reproduce it, you can't verify the fix.
+- Change one thing at a time. Three changes at once = you don't know which one worked.
+- A null check that hides a root cause is a deferred bug. Find why it's null.
+- Stuck after a few tries? Say so with what you saw. Don't silently flail for 20 iterations.
+
+## 7. Failure Modes to Self-Check
+
+**If you catch yourself doing these, stop.**
+
+- **Knowledge Hallucination:** not 100% sure an API/signature/param exists? Say so or check the source — don't invent it.
+- **Runaway Refactor:** a fix cascades into 15 files and you've lost the thread → stop, report, get buy-in before continuing.
+
 **These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
 
 ---
